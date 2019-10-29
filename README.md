@@ -14,7 +14,8 @@ This is a chat app base on Google Firebase, messages are delivered in real-time.
 
 
 ## **Backend**
-to connect the project to your own database on firebase download the google-service jasonfile
+to connect the project to your own database on firebase download the google-service jasonfile and add it to the project to replace the current file.
+the database would be already created when the aplication is used.
 ![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture7.PNG)
 ![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture8.PNG)
 
