@@ -1,7 +1,7 @@
 # Chat Application
 
-This is a chat app base on Google Firebase, messages are delivered in real-time.
-[Project APK](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/app-debug.apk)
+This is a chat app base on Google Firebase, messages are delivered in real-time. <br /> <br />
+[**Project APK**](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/app-debug.apk) <br />
 
 ## **Feature**
   - **Signin, register.**
