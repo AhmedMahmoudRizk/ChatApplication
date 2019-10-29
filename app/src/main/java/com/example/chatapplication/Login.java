@@ -88,23 +88,15 @@ public class Login extends AppCompatActivity {
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                Log.i("hhhhhhhh", dataSnapshot.getKey());
-
-//                if (dataSnapshot.exists()) {
-//                    Log.i("hhhhhhhh",dataSnapshot.getKey().toString());
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-//                    Log.i("hhhhhhhh", "88888888888" + data.getKey() + user);
-//                    Log.i("hhhhhhhh", data.getKey().equals(user) + "");
                     if (data.getKey().equals(user)) {
                         Map<String, Object> map = (Map<String, Object>) data.getValue();
-
                         if (map.get("password").toString().equals(pass)) {
                             Intent intent = new Intent(Login.this, MainActivity.class);
                             intent.putExtra("user", user);
                             startActivity(intent);
                         }
                     }
-//                    Log.i("hhhhhhhh", data.getKey());
                 }
             }
 

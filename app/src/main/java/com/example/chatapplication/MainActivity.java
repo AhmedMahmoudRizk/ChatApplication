@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -14,7 +15,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,60 +24,101 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+
     private FirebaseDatabase database;
-    private DatabaseReference myRef1, myRef2;
+    private DatabaseReference myRef1, myRef2, userStatus;
     private MessageAdapter messageAdapter;
     private ListView messagesView;
     private EditText editText;
+    private ImageView sendMsg;
     private String user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initializeUI();
+        backEnd();
+    }
 
-        editText = findViewById(R.id.editText);
+    private void backEnd() {
+        initalizeBackend();
+        getFromDataBase();
+        createAction();
+    }
 
-        messageAdapter = new MessageAdapter(this);
-        messagesView = findViewById(R.id.messages_view);
-        messagesView.setAdapter(messageAdapter);
-
+    private void initalizeBackend() {
         database = FirebaseDatabase.getInstance();
         myRef1 = database.getReference("message").child("tester-tester2");
         myRef2 = database.getReference("message").child("tester2-tester");
         Intent intent = getIntent();
         user = intent.getStringExtra("user");
-        getFromDataBase();
+        userStatus =
+                database.getReference("users").child(user).child("status");
+
+        userStatus.onDisconnect().setValue("offline");
+        userStatus.setValue("online");
+        userStatus.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("zzzzzzzz", dataSnapshot.getKey());
+                Log.i("zzzzzz", dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void initializeUI() {
+        editText = findViewById(R.id.editText);
+
+        messageAdapter = new MessageAdapter(this);
+        messagesView = findViewById(R.id.messages_view);
+        sendMsg = findViewById(R.id.sendMsg);
+        messagesView.setAdapter(messageAdapter);
+
+
+    }
+
+    private void getFromDataBase() {
+        myRef1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    if (data.exists()) {
+                        Map<String, Object> map = (Map<String, Object>) data.getValue();
+                        addMessage((String) map.get("user"), (String) map.get("message"), (String) map.get("date"));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void createAction() {
+
         myRef1.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                Log.i("ssssssss", dataSnapshot.getKey());
-//                Log.i("ssssssss", "---> " + counter);
-//
-//                for (DataSnapshot data : dataSnapshot.getChildren()) {
-//                    Log.i("ssssss", "entttttrrr");
-//                    Log.i("ssssssss", data.getKey());
-//                    Log.i("ssssssss", data.getValue().toString());
-//                }
-//                counter++;
-
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.i("cccccc", "child change");
-                Log.i("cccccc", dataSnapshot.getKey());
-                String u = "", m = "", d="";
+                String u = "", m = "", d = "";
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Log.i("cccccc", "entttttrrr");
                     if (data.getKey().equals("message"))
                         m = data.getValue().toString();
                     else if (data.getKey().equals("date"))
                         d = data.getValue().toString();
                     else
                         u = data.getValue().toString();
-                    Log.i("cccccc", data.getKey());
-                    Log.i("cccccc", data.getValue().toString());
                 }
                 addMessage(u, m, d);
             }
@@ -98,9 +139,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        sendMsg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+            }
+        });
+
     }
 
-    public void sendMessage(View view) {
+
+    public void sendMessage() {
         String message = editText.getText().toString();
         if (message.length() > 0) {
             DatabaseReference r1, r2;
@@ -120,30 +169,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getFromDataBase() {
-        myRef1.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("xxxxx", dataSnapshot.getKey());
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Log.i("xxxxxxxxxxx", data.getKey());
-                    if (data.exists()) {
-                        Map<String, Object> map = (Map<String, Object>) data.getValue();
 
-                        Log.i("xxxxxxxxx", (String) map.get("user"));
-
-                        Log.i("xxxxxxxxxxxx", (String) map.get("message"));
-                        addMessage((String) map.get("user"), (String) map.get("message"), (String) map.get("date"));
-
-
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+    /**
+     * Functions Belong to frontend
+     */
+    private void addMessage(String u, String m, String d) {
+        final MemberData data = new MemberData(u, getRandomColor());
+        boolean belongsToCurrentUser = u.equals(user);
+        final Message message = new Message(m, d, data, belongsToCurrentUser);
+        messageAdapter.add(message);
+        messagesView.setSelection(messagesView.getCount() - 1);
     }
 
     private String getRandomColor() {
@@ -153,15 +188,6 @@ public class MainActivity extends AppCompatActivity {
             sb.append(Integer.toHexString(r.nextInt()));
         }
         return sb.toString().substring(0, 7);
-    }
-
-    private void addMessage(String u, String m, String d) {
-        final MemberData data = new MemberData(u, getRandomColor());
-        boolean belongsToCurrentUser = u.equals(user);
-        final Message message = new Message(m, d, data, belongsToCurrentUser);
-        messageAdapter.add(message);
-        messagesView.setSelection(messagesView.getCount() - 1);
-
     }
 
 }
