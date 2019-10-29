@@ -10,6 +10,7 @@ This is a chat app base on Google Firebase, messages are delivered in real-time.
 
   - **Chat**
      - Chat with friend:send text message.
+     - User status (online - offline - typing)
   - **Notification**
      - Push notification on status bar when has new message.
 
