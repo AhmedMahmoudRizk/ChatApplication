@@ -2,7 +2,9 @@ package com.example.chatapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,7 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private ListView messagesView;
     private EditText editText;
     private ImageView sendMsg;
-    private String user;
+    private String user1, user2;
+    private boolean user2Status, isTyping;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,37 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initializeUI();
         backEnd();
-    }
-
-    private void backEnd() {
-        initalizeBackend();
-        getFromDataBase();
-        createAction();
-    }
-
-    private void initalizeBackend() {
-        database = FirebaseDatabase.getInstance();
-        myRef1 = database.getReference("message").child("tester-tester2");
-        myRef2 = database.getReference("message").child("tester2-tester");
-        Intent intent = getIntent();
-        user = intent.getStringExtra("user");
-        userStatus =
-                database.getReference("users").child(user).child("status");
-
-        userStatus.onDisconnect().setValue("offline");
-        userStatus.setValue("online");
-        userStatus.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("zzzzzzzz", dataSnapshot.getKey());
-                Log.i("zzzzzz", dataSnapshot.getValue().toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        detectWriting();
 
     }
 
@@ -81,10 +55,57 @@ public class MainActivity extends AppCompatActivity {
         sendMsg = findViewById(R.id.sendMsg);
         messagesView.setAdapter(messageAdapter);
 
-
     }
 
-    private void getFromDataBase() {
+    private void detectWriting() {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s.toString()) && s.toString().trim().length() == 1)
+                    isTyping = true;
+                else if (s.toString().trim().length() == 0 && isTyping)
+                    isTyping = false;
+                userStatus.child(user1).child("isTyping").setValue(isTyping);
+            }
+        });
+    }
+
+    private void backEnd() {
+        initalizeBackend();
+        getFromDatabase();
+        createActionBackend();
+    }
+
+    private void initalizeBackend() {
+        Intent intent = getIntent();
+        user1 = intent.getStringExtra("user");
+        if (user1.equals("tester"))
+            user2 = "tester2";
+        else
+            user2 = "tester";
+        database = FirebaseDatabase.getInstance();
+        myRef1 = database.getReference("message").child(user1 + "-" + user2);
+        myRef2 = database.getReference("message").child(user2 + "-" + user1);
+        userStatus = database.getReference("users");
+        // in application is terminated set the values to default
+        userStatus.child(user1).child("status").onDisconnect().setValue("offline");
+        userStatus.child(user1).child("status").setValue("online");
+        userStatus.child(user1).child("isTyping").onDisconnect().setValue("false");
+        user2Status = false;
+        isTyping = false;
+    }
+
+    private void getFromDatabase() {
+
         myRef1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -100,9 +121,33 @@ public class MainActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+
+        userStatus.child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user2Status(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    private void createAction() {
+    private void user2Status(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getKey().equals("status"))
+            user2Status = dataSnapshot.getValue().toString().equals("online");
+        else if (dataSnapshot.getKey().equals("isTyping")) {
+            isTyping = dataSnapshot.getValue().toString().equals("true");
+            if (isTyping)
+                addMessage(user2, null, "");
+            else
+                messageAdapter.removeIfTyping();
+        }
+    }
+
+    private void createActionBackend() {
 
         myRef1.addChildEventListener(new ChildEventListener() {
             @Override
@@ -120,7 +165,36 @@ public class MainActivity extends AppCompatActivity {
                     else
                         u = data.getValue().toString();
                 }
+                messageAdapter.removeIfTyping();
                 addMessage(u, m, d);
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        userStatus.child(user2).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                user2Status(dataSnapshot);
+                //update view status
             }
 
             @Override
@@ -157,15 +231,14 @@ public class MainActivity extends AppCompatActivity {
             r2 = myRef2;
             r1 = r1.push();
             r2 = r2.push();
-            r1.child("user").setValue(user);
+            r1.child("user").setValue(user1);
             r1.child("message").setValue(message);
-//            r1.child("date").setValue("zzzzz");
-            r2.child("user").setValue(user);
+            r2.child("user").setValue(user1);
             r2.child("message").setValue(message);
-//            r2.child("date").setValue("zzzzz");
             //appear msg
             editText.getText().clear();
-//            addMessage(user, message);
+
+//            addMessage(user1, message);
         }
     }
 
@@ -175,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addMessage(String u, String m, String d) {
         final MemberData data = new MemberData(u, getRandomColor());
-        boolean belongsToCurrentUser = u.equals(user);
-        final Message message = new Message(m, d, data, belongsToCurrentUser);
+        boolean belongsToCurrentUser = u.equals(user1);
+        final Message message = new Message(m, d, data, belongsToCurrentUser, isTyping);
         messageAdapter.add(message);
         messagesView.setSelection(messagesView.getCount() - 1);
     }

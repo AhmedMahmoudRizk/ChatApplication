@@ -2,7 +2,6 @@ package com.example.chatapplication;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +26,13 @@ public class MessageAdapter extends BaseAdapter {
     public void add(Message message) {
         this.messages.add(message);
         notifyDataSetChanged();
+    }
+
+    public void removeIfTyping() {
+        if (messages.size() > 0 && messages.get(messages.size() - 1).getText() == null && messages.get(messages.size() - 1).isTyping()) {
+            this.messages.remove(messages.size() - 1);
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -58,18 +64,28 @@ public class MessageAdapter extends BaseAdapter {
             holder.messageBody.setText(message.getText());
 //            holder.date.setText(message.getDate());
         } else {
-            convertView = messageInflater.inflate(R.layout.their_message, null);
-            holder.avatar = convertView.findViewById(R.id.avatar);
-            holder.name = convertView.findViewById(R.id.name);
-            holder.messageBody = convertView.findViewById(R.id.message_body);
-            holder.date = convertView.findViewById(R.id.date);
-            convertView.setTag(holder);
+            if (!message.isTyping() || message.getText() != null) {
+                convertView = messageInflater.inflate(R.layout.their_message, null);
+                holder.avatar = convertView.findViewById(R.id.avatar);
+                holder.name = convertView.findViewById(R.id.name);
+                holder.messageBody = convertView.findViewById(R.id.message_body);
+                holder.date = convertView.findViewById(R.id.date);
+                convertView.setTag(holder);
 
-            holder.name.setText(message.getMemberData().getName());
-            holder.messageBody.setText(message.getText());
+                holder.name.setText(message.getMemberData().getName());
+                holder.messageBody.setText(message.getText());
 //            holder.date.setText(message.getDate());
-            GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
+                GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
 //            drawable.setColor(Color.parseColor(message.getMemberData().getColor()));
+            } else {
+
+                convertView = messageInflater.inflate(R.layout.typing, null);
+                holder.avatar = convertView.findViewById(R.id.avatar);
+                holder.name = convertView.findViewById(R.id.name);
+                convertView.setTag(holder);
+                holder.name.setText(message.getMemberData().getName());
+                GradientDrawable drawable = (GradientDrawable) holder.avatar.getBackground();
+            }
         }
 
         return convertView;
