@@ -10,6 +10,7 @@ This is a chat app base on Google Firebase, messages are delivered in real-time.
 
   - **Chat**
      - Chat with friend:send text message.
+     - User status (online - offline - typing)
   - **Notification**
      - Push notification on status bar when has new message.
 
@@ -26,3 +27,6 @@ The databse ould be looked like :
 
 ## **Screenshots**  
 ![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture4.PNG)
+![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture9.PNG)
+![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture10.PNG)
+![alt text](https://github.com/AhmedMahmoudRizk/ChatApplication/blob/master/Screens/Capture11.PNG)
