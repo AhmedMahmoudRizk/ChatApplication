@@ -39,6 +39,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.3'
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
 
 
     testImplementation 'junit:junit:4.12'

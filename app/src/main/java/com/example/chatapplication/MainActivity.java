@@ -1,5 +1,6 @@
 package com.example.chatapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +24,9 @@ import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,8 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private ListView messagesView;
     private EditText editText;
     private ImageView sendMsg;
+    private CircleImageView status;
     private String user1, user2;
     private boolean user2Status, isTyping;
+    private TextView name;
+    private View actionBarView;
 
 
     @Override
@@ -55,6 +62,25 @@ public class MainActivity extends AppCompatActivity {
         sendMsg = findViewById(R.id.sendMsg);
         messagesView.setAdapter(messageAdapter);
 
+    }
+
+    private void setActionBar() {
+        this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(R.layout.custom_action_bar);
+        //getSupportActionBar().setElevation(0);
+        actionBarView = getSupportActionBar().getCustomView();
+        name = actionBarView.findViewById(R.id.userName);
+        name.setText(user2);
+        status = actionBarView.findViewById(R.id.status);
+    }
+
+    @SuppressLint("ResourceType")
+    private void onlineOrOffline() {
+        if (user2Status)
+            status.setImageResource(R.drawable.online);
+        else
+            status.setImageResource(R.drawable.offline);
     }
 
     private void detectWriting() {
@@ -81,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void backEnd() {
         initalizeBackend();
+        setActionBar();
         getFromDatabase();
         createActionBackend();
     }
@@ -122,10 +149,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        userStatus.child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+        userStatus.child(user2).child("isTyping").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                isTyping = dataSnapshot.getValue().toString().equals("true");
+                if (isTyping)
+                    addMessage(user2, null, "");
+                else
+                    messageAdapter.removeIfTyping();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        userStatus.child(user2).child("status").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                user2Status(dataSnapshot);
+                user2Status = dataSnapshot.getValue().toString().equals("online");
+                onlineOrOffline();
             }
 
             @Override
@@ -136,9 +179,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void user2Status(DataSnapshot dataSnapshot) {
-        if (dataSnapshot.getKey().equals("status"))
+        if (dataSnapshot.getKey().equals("status")) {
             user2Status = dataSnapshot.getValue().toString().equals("online");
-        else if (dataSnapshot.getKey().equals("isTyping")) {
+            onlineOrOffline();
+        } else if (dataSnapshot.getKey().equals("isTyping")) {
             isTyping = dataSnapshot.getValue().toString().equals("true");
             if (isTyping)
                 addMessage(user2, null, "");
