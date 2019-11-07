@@ -58,7 +58,7 @@ public class Login extends AppCompatActivity {
         registerUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                startActivity(new Intent(Login.this, Register.class));
+                startActivity(new Intent(Login.this, Register.class));
             }
         });
 
@@ -78,7 +78,7 @@ public class Login extends AppCompatActivity {
         pass = password.getText().toString();
 
         if (TextUtils.isEmpty(user)) {
-            Toast.makeText(getApplicationContext(), "Please enter user...", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Please enter User...", Toast.LENGTH_LONG).show();
             return;
         }
         if (TextUtils.isEmpty(pass)) {
@@ -92,8 +92,8 @@ public class Login extends AppCompatActivity {
                     if (data.getKey().equals(user)) {
                         Map<String, Object> map = (Map<String, Object>) data.getValue();
                         if (map.get("password").toString().equals(pass)) {
-                            Intent intent = new Intent(Login.this, MainActivity.class);
-                            intent.putExtra("user", user);
+                            Intent intent = new Intent(Login.this, UsersList.class);
+                            intent.putExtra("User", user);
                             startActivity(intent);
                         }
                     }

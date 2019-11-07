@@ -4,12 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Register">
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/back"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -28,25 +26,20 @@
 
         <EditText
             android:id="@+id/username"
-            android:layout_width="365dp"
+            android:layout_width="362dp"
             android:layout_height="49dp"
             android:layout_marginBottom="10dp"
-            android:background="#000000"
             android:hint="@string/enter_username"
             android:inputType="text"
-            android:maxLines="1"
-            android:textColor="#ffffff" />
+            android:maxLines="1"/>
 
         <EditText
             android:id="@+id/password"
-            android:layout_width="363dp"
-            android:layout_height="50dp"
+            android:layout_width="358dp"
+            android:layout_height="49dp"
             android:layout_marginBottom="10dp"
-            android:background="#000000"
             android:hint="@string/enter_password"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColor="#ffffff" />
+            android:maxLines="1"/>
 
         <Button
             android:id="@+id/registerButton"

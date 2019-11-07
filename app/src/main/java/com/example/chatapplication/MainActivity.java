@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         this.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(R.layout.custom_action_bar);
-        //getSupportActionBar().setElevation(0);
         actionBarView = getSupportActionBar().getCustomView();
         name = actionBarView.findViewById(R.id.userName);
         name.setText(user2);
@@ -114,11 +113,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void initalizeBackend() {
         Intent intent = getIntent();
-        user1 = intent.getStringExtra("user");
-        if (user1.equals("tester"))
-            user2 = "tester2";
-        else
-            user2 = "tester";
+        user1 = intent.getStringExtra("User1");
+        user2 = intent.getStringExtra("User2");
+
         database = FirebaseDatabase.getInstance();
         myRef1 = database.getReference("message").child(user1 + "-" + user2);
         myRef2 = database.getReference("message").child(user2 + "-" + user1);
@@ -275,9 +272,9 @@ public class MainActivity extends AppCompatActivity {
             r2 = myRef2;
             r1 = r1.push();
             r2 = r2.push();
-            r1.child("user").setValue(user1);
+            r1.child("User").setValue(user1);
             r1.child("message").setValue(message);
-            r2.child("user").setValue(user1);
+            r2.child("User").setValue(user1);
             r2.child("message").setValue(message);
             //appear msg
             editText.getText().clear();
@@ -292,7 +289,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addMessage(String u, String m, String d) {
         final MemberData data = new MemberData(u, getRandomColor());
+        System.out.println(user1);
+        System.out.println(u+"----"+m+"----"+d);
         boolean belongsToCurrentUser = u.equals(user1);
+
         final Message message = new Message(m, d, data, belongsToCurrentUser, isTyping);
         messageAdapter.add(message);
         messagesView.setSelection(messagesView.getCount() - 1);

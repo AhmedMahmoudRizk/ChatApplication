@@ -6,11 +6,9 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-//import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -22,7 +20,7 @@ public class Register extends AppCompatActivity {
     EditText username, password;
     Button registerButton;
     TextView login;
-//    private ProgressBar progressBar;
+    //    private ProgressBar progressBar;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
 
@@ -42,11 +40,8 @@ public class Register extends AppCompatActivity {
         password = findViewById(R.id.password);
         registerButton = findViewById(R.id.registerButton);
         login = findViewById(R.id.login);
-//        mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("users");
-//        myRef.setValue("Hello, World!");
-
     }
 
     private void createAction() {
@@ -54,6 +49,13 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 registerNewUser();
+            }
+        });
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Register.this, Login.class);
+                startActivity(intent);
             }
         });
     }
@@ -75,7 +77,10 @@ public class Register extends AppCompatActivity {
             return;
         }
         myRef.child(user).child("password").setValue(pass);
-        Intent intent = new Intent(Register.this, MainActivity.class);
+        myRef.child(user).child("isTyping").setValue(false);
+        myRef.child(user).child("status").setValue("online");
+        Intent intent = new Intent(Register.this, UsersList.class);
+        intent.putExtra("User", user);
         startActivity(intent);
 //        else {
 //            final ProgressDialog pd = new ProgressDialog(Register.this);
@@ -90,15 +95,15 @@ public class Register extends AppCompatActivity {
 //                    Firebase reference = new Firebase("https://chat-application-7efb8.firebaseio.com/users");
 //                    Log.e("taaag", "Enter here---");
 //                    if(s.equals("null")) {
-//                        reference.child(user).child("password").setValue(pass);
+//                        reference.child(User).child("password").setValue(pass);
 //                        Toast.makeText(Register.this, "registration successful", Toast.LENGTH_LONG).show();
 //                    }
 //                    else {
 //                        try {
 //                            JSONObject obj = new JSONObject(s);
 //
-//                            if (!obj.has(user)) {
-//                                reference.child(user).child("password").setValue(pass);
+//                            if (!obj.has(User)) {
+//                                reference.child(User).child("password").setValue(pass);
 //                                Toast.makeText(Register.this, "registration successful", Toast.LENGTH_LONG).show();
 //                            } else {
 //                                Toast.makeText(Register.this, "username already exists", Toast.LENGTH_LONG).show();
@@ -127,7 +132,7 @@ public class Register extends AppCompatActivity {
 //        }
 
 
-//        mAuth.createUserWithEmailAndPassword(user, pass)
+//        mAuth.createUserWithEmailAndPassword(User, pass)
 //                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 //                    @Override
 //                    public void onComplete(@NonNull Task<AuthResult> task) {
