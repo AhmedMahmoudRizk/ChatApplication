@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -22,10 +23,20 @@ import androidx.core.app.NotificationCompat;
 public class MyService extends FirebaseMessagingService {
     private Context context = this;
 
+    /**
+     * Called if InstanceID token is updated. This may occur if the security of
+     * the previous token had been compromised. Note that this is called when the InstanceID token
+     * is initially generated so this is where you would retrieve the token.
+     */
     @Override
-    public void onNewToken(String refreshedToken) {
-        super.onNewToken(refreshedToken);
-        Log.i("msg to log", "new token is printed");
+    public void onNewToken(String token) {
+        FirebaseInstanceId.getInstance().getToken();
+        Log.d("zzzzz", "Refreshed token: " + token);
+
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // Instance ID token to your app server.
+//        sendRegistrationToServer(token);
     }
 
     @Override

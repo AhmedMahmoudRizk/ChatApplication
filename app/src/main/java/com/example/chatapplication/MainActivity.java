@@ -272,9 +272,9 @@ public class MainActivity extends AppCompatActivity {
             r2 = myRef2;
             r1 = r1.push();
             r2 = r2.push();
-            r1.child("User").setValue(user1);
+            r1.child("user").setValue(user1);
             r1.child("message").setValue(message);
-            r2.child("User").setValue(user1);
+            r2.child("user").setValue(user1);
             r2.child("message").setValue(message);
             //appear msg
             editText.getText().clear();
@@ -289,10 +289,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addMessage(String u, String m, String d) {
         final MemberData data = new MemberData(u, getRandomColor());
-        System.out.println(user1);
-        System.out.println(u+"----"+m+"----"+d);
         boolean belongsToCurrentUser = u.equals(user1);
-
         final Message message = new Message(m, d, data, belongsToCurrentUser, isTyping);
         messageAdapter.add(message);
         messagesView.setSelection(messagesView.getCount() - 1);

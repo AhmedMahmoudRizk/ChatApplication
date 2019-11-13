@@ -5,6 +5,24 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <permission
+        android:name="com.cik.gcmpush.permission.C2D_MESSAGE"
+        android:protectionLevel="signature"/>
+
+    <uses-permission android:name="com.cik.gcmpush.permission.C2D_MESSAGE"/>
+
+    <!-- This app has permission to register and receive data message. -->
+
+    <!-- Permission to vibrate -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- All of the following are required by GCM Receiver or Sender, End -->
+
+
+    <!-- Optional permission for Google Analytics -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"

@@ -52,7 +52,8 @@ public class UsersList extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    adapter.addItem(new User(data.getKey()));
+                    if (!data.getKey().equals(user1))
+                        adapter.addItem(new User(data.getKey()));
                 }
             }
 

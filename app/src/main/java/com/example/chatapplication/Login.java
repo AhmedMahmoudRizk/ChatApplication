@@ -3,6 +3,7 @@ package com.example.chatapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,15 +11,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Login extends AppCompatActivity {
@@ -35,7 +41,25 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
 
+                        if (!task.isSuccessful()) {
+//                            Log.w("zzzzz", task.getResult().getToken());
+                            Log.w("zzzzz", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and toast
+                        Log.d("zzzzz", token);
+                        Toast.makeText(Login.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
         initializeUI();
 
         createAction();
@@ -92,6 +116,7 @@ public class Login extends AppCompatActivity {
                     if (data.getKey().equals(user)) {
                         Map<String, Object> map = (Map<String, Object>) data.getValue();
                         if (map.get("password").toString().equals(pass)) {
+                            myRef.child(user).child("status").setValue("online");
                             Intent intent = new Intent(Login.this, UsersList.class);
                             intent.putExtra("User", user);
                             startActivity(intent);
